@@ -1,0 +1,37 @@
+Description: Creates an EC2 Instance from Linux AMI
+Resources:
+  Ec2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: ami-0fc61db8544a617ed
+      InstanceType: t2.micro
+      KeyName: AwsKey
+      Tags:
+        - Key: Name
+          Value: Instance testing
+      SecurityGroupIds:
+        - !Ref InstanceSecurityGroup
+      UserData:
+        Fn::Base64:
+          !Sub |
+            #!/bin/bash -xe
+            yum install git -y
+            echo "yes" > /tmp/holder
+    
+  InstanceSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupName: cloudformation-custom-vpc2
+      GroupDescription: Enable SSH access via port 22
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 73.74.29.94/32
+
+Outputs:
+  InstanceId:
+    Description: The Instance ID of new EC2 instance
+    Value: !Ref Ec2Instance
+
+AWSTemplateFormatVersion: 2010-09-09

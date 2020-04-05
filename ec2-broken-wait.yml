@@ -17,6 +17,8 @@ Resources:
             #!/bin/bash -xe
             yum install git -y
             echo "yes" > /tmp/holder
+            '/opt/aws/bin/cfn-signal -e 0 -r "Instance Creation Complete"'
+            - !Ref WaitHandle
     
   InstanceSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
@@ -28,6 +30,15 @@ Resources:
           FromPort: '22'
           ToPort: '22'
           CidrIp: 73.74.29.94/32
+
+  WaitHandle:
+    Type: 'AWS::CloudFormation::WaitConditionHandle'
+  WaitCondition:
+    Type: 'AWS::CloudFormation::WaitCondition'
+    DependsOn: Ec2Instance
+    Properties:
+      Handle: !Ref WaitHandle
+      Timeout: '300'
 
 Outputs:
   InstanceId:
